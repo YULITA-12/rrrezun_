@@ -110,6 +110,34 @@ int main(int argc, char* argv[]) {
 
 
     processes.push_back(startProcess(exePath, "M", hPipe1_Read, hPipe2_Write));
+    processes.push_back(startProcess(exePath, "S", hPipe4_Read, GetStdHandle(STD_OUTPUT_HANDLE)));
+
+    CloseHandle(hPipe1_Read);
+
+    CloseHandle(hPipe2_Read);
+    CloseHandle(hPipe2_Write);
+
+    CloseHandle(hPipe3_Read);
+    CloseHandle(hPipe3_Write);
+
+    CloseHandle(hPipe4_Read);
+    CloseHandle(hPipe4_Write);
+
+    string inputData = "1 2 3\n"; // \n важен для cin
+    cout << "Main отправляет: " << inputData;
+
+    DWORD bytesWritten;
+    WriteFile(hPipe1_Write, inputData.c_str(), inputData.length(), &bytesWritten, NULL);
+
+    CloseHandle(hPipe1_Write);
+
+    WaitForMultipleObjects(processes.size(), processes.data(), TRUE, INFINITE);
+
+    for (HANDLE h : processes) CloseHandle(h);
+
+    cout << "Работа завершена." << endl;
+    return 0;
+}
 
     processes.push_back(startProcess(exePath, "A", hPipe2_Read, hPipe3_Write));
 
